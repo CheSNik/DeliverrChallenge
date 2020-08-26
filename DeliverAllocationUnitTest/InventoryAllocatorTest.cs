@@ -39,10 +39,10 @@ namespace DeliverAllocationUnitTest
             //Act
             inventoryAllocator.AllocateOrderAmongLocations(orders, locations);
             //Assert
-            Assert.IsTrue(wareHouse.GetInventoryAmounts("Apples") == 0);
-            Assert.IsTrue(wareHouse.GetStoredItems("Apples") == 5);
-            Assert.IsTrue(wareHouse.GetInventoryAmounts("Pears") == 0);
-            Assert.IsTrue(wareHouse.GetStoredItems("Pears") == 5);
+            Assert.IsTrue(wareHouse.InventoryAmounts["Apples"] == 0);
+            Assert.IsTrue(wareHouse.StoredInventory["Apples"] == 5);
+            Assert.IsTrue(wareHouse.InventoryAmounts["Pears"] == 0);
+            Assert.IsTrue(wareHouse.StoredInventory["Pears"] == 5);
 
         }
 
@@ -112,6 +112,28 @@ namespace DeliverAllocationUnitTest
 
         }
 
-        
+        [TestMethod]
+        public void WareHOuseHasNegativeAmount()
+        {
+            //Assign
+            orderList = new Dictionary<string, int>();
+            orderList.Add("Apples", 5);
+            orderList.Add("Pears", 5);
+            orders = new Orders(orderList);
+            wareHouse = new WareHouse("owd");
+            locations = new Locations();
+            locations.setWareHouse(wareHouse);
+            wareHouse.SetInventoryAmount("Apples", -1);
+            wareHouse.SetInventoryAmount("Watermelon", 5);
+            InventoryAllocator inventoryAllocator = new InventoryAllocator();
+
+            //Act
+
+            //Assert
+            Assert.IsTrue(inventoryAllocator.AllocateOrderAmongLocations(orders, locations) == false);
+
+        }
+
+
     }
 }

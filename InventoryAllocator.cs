@@ -1,37 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
-using System.Security.Cryptography;
+using System.Collections.ObjectModel;
 
 namespace DeliverrChallenge
 {
     public class InventoryAllocator
     {
-
-        private Orders _orders;
-        private Locations _locations;
+        
         public int OrderAmount { get; private set; }
-        /// <summary>
-        /// Object receives orders and locations, than distributes order among locations
-        /// </summary>
-        /// <param name="orders"></param>
-        /// <param name="locations"></param>
+        
+        //Object receives orders and locations, than distributes order among locations
         public bool AllocateOrderAmongLocations(Orders orders, Locations locations)
         {
-            _orders = orders;
-            _locations = locations;
-
-            //validate if all orders has values >=0
-            if (!ValidateOrders(_orders))
+            //validate if all orders have values >=0
+            if (!ValidateOrders(orders))
             {
                 Console.WriteLine("Order has negative amount");
                 return false;
             }
-                
+
+            //validate if all warehouses have values >=0
+            if (!ValidateWareHouse(locations))
+            {
+                Console.WriteLine("Inventory in warehouse has negative number");
+                return false;
+            }
 
             //loop to iterate through every item in the order
-            foreach (var orderItem in _orders._orderList)
+            foreach (var orderItem in orders._orderList)
             {
                 OrderAmount = orderItem.Value;
                 int i = 0;
@@ -63,7 +60,6 @@ namespace DeliverrChallenge
             {
                 warehouse.PrintStoredItems();
             }
-
             return true;
         }
 
@@ -79,6 +75,18 @@ namespace DeliverrChallenge
             return isValid;
         }
 
+        private bool ValidateWareHouse(Locations locations)
+        {
+            bool isValid = true;
+
+            foreach (var warehouse in locations.locationsList)
+            {
+                foreach (var inventory in warehouse.InventoryAmounts)
+                    if (inventory.Value < 0)
+                        isValid = false;
+            }
+            return isValid;
+        }
     }
 
     /// <summary>
@@ -89,12 +97,10 @@ namespace DeliverrChallenge
         //Stores order details: item and quantity of items
         public Dictionary<string, int> _orderList;
 
-
         public Orders(Dictionary<string, int> orderList)
         {
             _orderList = orderList;
         }
-
     }
 
     
@@ -105,29 +111,33 @@ namespace DeliverrChallenge
     public class WareHouse
     {
         public string Name { get; }
-        private Dictionary<string, int> InventoryAmounts { get; } = new Dictionary<string, int>();
-        private Dictionary<string, int> StoredInventory { get; } = new Dictionary<string, int>();
+        private Dictionary<string, int> _inventoryAmounts = new Dictionary<string, int>();
+        private ReadOnlyDictionary<string, int> inventoryAmounts;
+        private Dictionary<string, int> _storedInventory = new Dictionary<string, int>();
+        private ReadOnlyDictionary<string, int> storedInventory;
+        //Readonly wrapper
+        public ReadOnlyDictionary<string, int> InventoryAmounts
+        {
+            get
+            {
+                inventoryAmounts = new ReadOnlyDictionary<string, int>(_inventoryAmounts);
+                return inventoryAmounts;
+            }
+        }
+        //Readonly wrapper
+        public ReadOnlyDictionary<string, int> StoredInventory
+        {
+            get
+            {
+                storedInventory = new ReadOnlyDictionary<string, int>(_storedInventory);
+                return storedInventory;
+            }
+        }
+
         public WareHouse(string wareHouseName)
         {
             Name = wareHouseName;
-        }
-        /// <summary>
-        /// Retrive amount of specified by name item
-        /// </summary>
-        /// <param name="inventoryName">Name of item (inventory)</param>
-        /// <returns></returns>
-        public int GetInventoryAmounts(string inventoryName)
-        {
-            return InventoryAmounts[inventoryName];
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="inventoryName"></param>
-        /// <returns></returns>
-        public int GetStoredItems(string inventoryName)
-        {
-            return StoredInventory[inventoryName];
+
         }
 
         /// <summary>
@@ -139,10 +149,10 @@ namespace DeliverrChallenge
         {
             if (InventoryAmounts.ContainsKey(inventoryName))
                 //if we add more inventory to a warehouse to an existing item 
-                InventoryAmounts[inventoryName] += inventoryAmount;
+                _inventoryAmounts[inventoryName] += inventoryAmount;
             else
                 //if we add brand new item
-                InventoryAmounts.Add(inventoryName, inventoryAmount);
+                _inventoryAmounts.Add(inventoryName, inventoryAmount);
         }
 
         /// <summary>
@@ -159,15 +169,15 @@ namespace DeliverrChallenge
                 //Check if there is free space in inventory for certain item
                 if (InventoryAmounts[inventoryName] >= notAllocated)
                 {
-                    StoredInventory.Add(inventoryName, notAllocated);
-                    InventoryAmounts[inventoryName] -= notAllocated;
+                    _storedInventory.Add(inventoryName, notAllocated);
+                    _inventoryAmounts[inventoryName] -= notAllocated;
                     return 0;
                 }
                 else // inventoryAmounts[inventoryName] < inventoryAmount
                 {
                     notAllocated = notAllocated - InventoryAmounts[inventoryName]; //decrease not allocated item variable
-                    StoredInventory.Add(inventoryName, InventoryAmounts[inventoryName]); //add allocated item to a stored items Collection
-                    InventoryAmounts[inventoryName] = 0; //assign to zero available space for storage.
+                    _storedInventory.Add(inventoryName, InventoryAmounts[inventoryName]); //add allocated item to a stored items Collection
+                    _inventoryAmounts[inventoryName] = 0; //assign to zero available space for storage.
                     return notAllocated;
                 }
             }
