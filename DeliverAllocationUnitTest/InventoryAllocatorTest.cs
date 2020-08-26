@@ -108,7 +108,7 @@ namespace DeliverAllocationUnitTest
             //Act
             
             //Assert
-            Assert.IsTrue(inventoryAllocator.AllocateOrderAmongLocations(orders, locations)==false);
+            Assert.IsTrue(inventoryAllocator.AllocateOrderAmongLocations(orders, locations)==null);
 
         }
 
@@ -130,7 +130,7 @@ namespace DeliverAllocationUnitTest
             //Act
 
             //Assert
-            Assert.IsTrue(inventoryAllocator.AllocateOrderAmongLocations(orders, locations) == false);
+            Assert.IsTrue(inventoryAllocator.AllocateOrderAmongLocations(orders, locations) == null);
 
         }
 

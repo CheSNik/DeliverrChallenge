@@ -7,24 +7,23 @@ namespace DeliverrChallenge
 {
     public class InventoryAllocator
     {
-        
         public int OrderAmount { get; private set; }
         
         //Object receives orders and locations, than distributes order among locations
-        public bool AllocateOrderAmongLocations(Orders orders, Locations locations)
+        public Locations AllocateOrderAmongLocations(Orders orders, Locations locations)
         {
             //validate if all orders have values >=0
             if (!ValidateOrders(orders))
             {
                 Console.WriteLine("Order has negative amount");
-                return false;
+                return null;
             }
 
             //validate if all warehouses have values >=0
             if (!ValidateWareHouse(locations))
             {
                 Console.WriteLine("Inventory in warehouse has negative number");
-                return false;
+                return null;
             }
 
             //loop to iterate through every item in the order
@@ -60,7 +59,7 @@ namespace DeliverrChallenge
             {
                 warehouse.PrintStoredItems();
             }
-            return true;
+            return locations;
         }
 
         private bool ValidateOrders(Orders orders)
