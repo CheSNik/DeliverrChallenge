@@ -79,18 +79,6 @@ namespace DeliverrChallenge
             return isValid;
         }
 
-        private bool validateWarehouse(Locations locations)
-        {
-            bool isValid = true;
-
-            foreach (var wareHouse in locations.locationsList)
-            {
-                if (wareHouse. < 0)
-                    isValid = false;
-            }
-
-            return isValid;
-        }
     }
 
     /// <summary>

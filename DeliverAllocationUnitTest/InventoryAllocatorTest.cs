@@ -106,33 +106,12 @@ namespace DeliverAllocationUnitTest
             InventoryAllocator inventoryAllocator = new InventoryAllocator();
 
             //Act
-            inventoryAllocator.AllocateOrderAmongLocations(orders, locations);
+            
             //Assert
-            Assert.IsTrue(inventoryAllocator.OrderAmount < 0);
+            Assert.IsTrue(inventoryAllocator.AllocateOrderAmongLocations(orders, locations)==false);
 
         }
 
-        [TestMethod]
-        public void WareHouseHasNegativeInventoryAmount()
-        {
-            //Assign
-            orderList = new Dictionary<string, int>();
-            orderList.Add("Apples", 5);
-            orderList.Add("Pears", 5);
-            orders = new Orders(orderList);
-            wareHouse = new WareHouse("owd");
-            locations = new Locations();
-            locations.setWareHouse(wareHouse);
-            wareHouse.SetInventoryAmount("Apples", -1);
-            wareHouse.SetInventoryAmount("Watermelon", 5);
-            InventoryAllocator inventoryAllocator = new InventoryAllocator();
-
-            //Act
-            inventoryAllocator.AllocateOrderAmongLocations(orders, locations);
-            //Assert
-            Assert.IsTrue(inventoryAllocator.OrderAmount == 0);
-
-        }
-
+        
     }
 }
